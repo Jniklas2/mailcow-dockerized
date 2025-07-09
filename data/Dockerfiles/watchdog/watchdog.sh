@@ -169,9 +169,15 @@ function notify_error() {
       return 1
     fi
 
+    # Read file contents if BODY is a file path
+    WEBHOOK_BODY_CONTENT="${BODY}"
+    if [[ -f "${BODY}" ]]; then
+      WEBHOOK_BODY_CONTENT=$(cat "${BODY}")
+    fi
+
     # Escape subject and body (https://stackoverflow.com/a/2705678)
     ESCAPED_SUBJECT=$(echo ${SUBJECT} | sed -e 's/[\/&]/\\&/g')
-    ESCAPED_BODY=$(echo ${BODY} | sed -e 's/[\/&]/\\&/g')
+    ESCAPED_BODY=$(echo ${WEBHOOK_BODY_CONTENT} | sed -e 's/[\/&]/\\&/g')
 
     # Replace subject and body placeholders
     WEBHOOK_BODY=$(echo ${WATCHDOG_NOTIFY_WEBHOOK_BODY} | sed -e "s/\$SUBJECT\|\${SUBJECT}/$ESCAPED_SUBJECT/g" -e "s/\$BODY\|\${BODY}/$ESCAPED_BODY/g")
